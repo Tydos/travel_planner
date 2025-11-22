@@ -6,7 +6,7 @@ function HomePage() {
   const [res, setRes] = useState([]);
 
   useEffect(() => {
-    axios.get("http://localhost:5000/items")
+    axios.get("http://localhost:5000/getuser")
       .then((response) => {
         setRes(response.data); // Store response in state
       })
@@ -19,8 +19,10 @@ function HomePage() {
     <div>
       <h1>HomePage</h1>
       <ul>
-        {res.map((item, index) => (
-          <li key={index}>{item.name || item.id}</li> 
+        {res.map((name, index) => (
+          <li key={index}>
+            {name} 
+          </li> 
         ))}
       </ul>
     </div>

@@ -1,48 +1,52 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from db import items
-
+from db import dbname,users_collection
+from bson.objectid import ObjectId
+from bson.json_util import dumps
 app = Flask(__name__)
 CORS(app)
-
+print(f"Connected to DB: {dbname}")
+print(f"Available collections: {users_collection.name}")
 
 @app.route("/")
 def home():
     return {"message": "Flask backend running"}
 
-
-@app.route("/dummy")
+@app.route("/dummyuser")
 def get_dummies():
-    return {"id": "value"}
+    data = [{ "id": "alice"}]
+    return jsonify(data)
     
-@app.route("/items", methods=["GET"])
-def get_items():
+@app.route("/getuser", methods=["GET"])
+def get_user():
+   # Ensure the database connection is active
+    if users_collection is None:
+        return jsonify({"error": "Database connection failed"}), 500
+        
     try:
-        print(items)
-        docs = list(items.find())
-        data = []
-        for doc in docs:
-            doc_id = str(doc.pop("_id"))
-            doc["id"] = doc_id
-            data.append(doc)
-        return jsonify(data), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        # 1. Execute the find query with an empty filter {}
+        # This retrieves ALL documents in the collection
+        cursor = users_collection.find({})
+        
+        # 2. Convert the PyMongo cursor into a list of dictionaries
+        users_list = list(cursor)
+        
+        names_list = [user['name'] for user in users_list]
+        json_data = dumps(names_list)
+        
+        # Return the JSON string with the correct status and mimetype
+        return app.response_class(
+            response=json_data,
+            status=200,
+            mimetype='application/json'
+        )
+    except:
+        pass
+      
 
-
-@app.route("/items2", methods=["POST"])
-def add_item():
-    try:
-        payload = request.get_json()
-        if not payload:
-            return jsonify({"error": "Missing JSON body"}), 400
-
-        result = items.insert_one(payload)
-        payload["id"] = str(result.inserted_id)
-        return jsonify(payload), 201
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
+@app.route("/adduser", methods=["POST"])
+def add_user():
+    pass
 
 if __name__ == "__main__":
     app.run(port=5000, debug=True)
