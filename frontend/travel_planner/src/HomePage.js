@@ -18,9 +18,9 @@ function HomePage() {
 
   // Fetch cities and users whenever refreshToggle changes
   useEffect(() => {
-    axios.get("http://localhost:5000/getcities")
-      .then((response) => setCities(response.data))
-      .catch((error) => console.error("Error fetching cities:", error));
+    // axios.get("http://localhost:5000/planmytrip")
+    //   .then((response) => setCities(response.data))
+    //   .catch((error) => console.error("Error fetching cities:", error));
 
     axios.get("http://localhost:5000/getusers")
       .then((response) => setRes(response.data))
@@ -72,9 +72,14 @@ function HomePage() {
  // Refresh triggered by "PLAN MY TRIP"
 const handlePlanTrip = async () => {
   try {
-    const history = await axios.get("http://localhost:5000/getusers");
-    const response = await axios.get("http://localhost:5000/planmytrip");
-    setCities(response.data); // update activities
+   // Fetch trip plan
+  const response = await axios.get("http://localhost:5000/planmytrip");
+
+  // Parse if the response is a string
+  const data = typeof response.data === "string" ? JSON.parse(response.data) : response.data;
+
+  // Update state (activities instead of cities for clarity)
+  setCities(data); // or setActivities(data) if you renamed the state
   } catch (err) {
     console.error("Error fetching cities:", err);
   }
@@ -170,14 +175,42 @@ const handlePlanTrip = async () => {
 
       {/* Middle Column - Activities */}
       <div style={columnStyle}>
-        <div style={sectionStyle}>
-          <button onClick={handlePlanTrip} style={{ ...buttonStyle, width: "100%", marginBottom: "10px" }}>PLAN MY TRIP</button>
-          <h2>Activities in Madison</h2>
-          <ul>
-            {cities.length > 0 ? cities.map((city, i) => <li key={i} style={listItemStyle}>{city}</li>) : <li>No data available</li>}
-          </ul>
-        </div>
+  <div style={sectionStyle}>
+    <button 
+      onClick={handlePlanTrip} 
+      style={{ ...buttonStyle, width: "100%", marginBottom: "15px" }}
+    >
+      PLAN MY TRIP
+    </button>
+    <h2>Activities in Madison</h2>
+    
+    {cities.length > 0 ? (
+      <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+        {cities.map((activity, i) => (
+          <div
+            key={i}
+            style={{
+              backgroundColor: "#fff",
+              padding: "15px 20px",
+              borderRadius: "12px",
+              boxShadow: "0 4px 8px rgba(0,0,0,0.05)",
+              transition: "transform 0.2s",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.02)")}
+            onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+          >
+            <h3 style={{ margin: "0 0 8px 0", color: "#222" }}>{activity.name}</h3>
+            <p style={{ margin: "0 0 5px 0", fontWeight: "bold" }}>Budget: ${activity.budget}</p>
+            <p style={{ margin: 0, color: "#555" }}>{activity.justification_score}</p>
+          </div>
+        ))}
       </div>
+    ) : (
+      <p style={{ color: "#888", fontStyle: "italic" }}>No activities available</p>
+    )}
+  </div>
+</div>
+
 
       {/* Right Column - Group Members */}
     <div style={columnStyle}>

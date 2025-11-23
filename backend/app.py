@@ -108,26 +108,20 @@ def del_user(user_name):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-
+import re
 @app.route("/planmytrip", methods=["GET"])
 def get_cities():
     try:
         prompt = f"""
-          Recommend exactly 3 distinct activities in Madison, Wisconsin for the users in {json_data}. Maximize fairness by minimizing the unhappiness of the least satisfied user. Total cost must be strictly less than the lowest user's "total_budget". Include at least one activity they haven’t tried. Use Nightlife, Food, Urban, Nature, Culture, and Relaxation as categories.
-
-Return a JSON array of 3 objects, each with:
-
-"name": activity name
-
-"budget": estimated cost for the group
-
-"justification_score": one sentence linking the activity to the top preference categories
-
-Return only the JSON array, no extra text.
+          Recommend exactly 3 distinct activities in Madison, Wisconsin for the users in {json_data}, maximizing fairness by minimizing the unhappiness of the least satisfied user,
+          keeping the total cost strictly below the lowest user's total_budget,
+          including at least one activity they haven’t tried, using Nightlife, Food, Urban, Nature, Culture, and Relaxation categories;
+          return strictly a JSON array of 3 objects with "name", "budget" (group cost), and "justification_score" (one sentence linking the activity to top preference categories) with no extra text.
         """
         response = client.models.generate_content(model="gemini-2.5-flash", contents=prompt)
-        cities = [city.strip() for city in response.text.split(",")]
-        return jsonify(cities), 200
+        cleaned = re.sub(r"^```(?:json)?\s*|\s*```$", "", response.text.strip(), flags=re.MULTILINE)
+        return jsonify(cleaned), 200
+    
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
