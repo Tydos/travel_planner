@@ -112,6 +112,24 @@ import re
 @app.route("/planmytrip", methods=["GET"])
 def get_cities():
     try:
+        # Always fetch fresh user data
+        cursor = users_collection.find({})
+        users_list = list(cursor)
+
+        if not users_list:
+            return jsonify({"error": "No users found in database."}), 400
+
+        filtered_users = []
+        for user in users_list:
+            filtered_users.append({
+                "name": user.get("name"),
+                "total_budget": user.get("total_budget"),
+                "monthly_saving_capacity": user.get("monthly_saving_capacity"),
+                "preference_weights": user.get("preference_weights")
+            })
+
+        json_data = dumps(filtered_users)
+
         prompt = f"""
 Recommend exactly 3 distinct activities in Madison, WI for the users in {json_data}, 
 ensuring the total group cost is strictly less than the lowest user's total_budget. 
@@ -122,9 +140,9 @@ For each activity, include:
 
 - "name": the activity name
 - "budget": total group cost
-- "justification_score": one sentence explaining how it aligns with each user's top preference categories. Write the user names in the justification.
+- "justification_score": one sentence explaining how it aligns with each user's top preference categories. Write the user names with no bold text in the justification.
 
-
+Give one expensive activity, one moderate activity , and one free activity.
 Return strictly a JSON array of 3 objects, with no extra text, explanations, or formatting.
 """
         response = client.models.generate_content(model="gemini-2.5-flash", contents=prompt)
@@ -133,6 +151,7 @@ Return strictly a JSON array of 3 objects, with no extra text, explanations, or 
     
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 
 if __name__ == "__main__":

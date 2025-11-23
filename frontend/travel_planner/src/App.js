@@ -6,7 +6,8 @@ import Test from './Test';
 function App() {
   return (
     <div className="App">
-      <HomePage/>
+      {/* <HomePage/> */}
+      <Test/>
     </div>
   );
 }
