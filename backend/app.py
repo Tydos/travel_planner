@@ -46,28 +46,30 @@ def get_user():
       
 @app.route("/adduser", methods=["POST"])
 def add_user():
-        new_user = {
-        "id": "alice",
-        "name": "Alice",
-        "total_budget": 800,
-        "monthly_saving_capacity": 150,
-        "preference_weights": {
-            "nightlife": 4,
-            "adventure": 2,
-            "shopping": 1,
-            "food": 5,
-            "urban": 4
-        },
-        "constraints": {
-            "min_hotel_rating": 3,
-            "max_flight_legs": 2
-        },
-        "notes": "Budget foodie, hates early mornings and hiking, loves walkable neighborhoods and speakeasies."
-    }
-        
-        # 2. Insert the hardcoded data
-        result = users_collection.insert_one(new_user)
-        
+    #     new_user = {
+    #     "id": "alice",
+    #     "name": "Alice",
+    #     "total_budget": 800,
+    #     "monthly_saving_capacity": 150,
+    #     "preference_weights": {
+    #         "nightlife": 4,
+    #         "adventure": 2,
+    #         "shopping": 1,
+    #         "food": 5,
+    #         "urban": 4
+    #     },
+    #     "constraints": {
+    #         "min_hotel_rating": 3,
+    #         "max_flight_legs": 2
+    #     },
+    #     "notes": "Budget foodie, hates early mornings and hiking, loves walkable neighborhoods and speakeasies."
+    # }
+        # 1. Get data from request
+        data = request.get_json()
+
+        # 2. Insert the data into MongoDB
+        result = users_collection.insert_one(data)
+
         # 3. Success Response
         return jsonify({
             "message": "Hardcoded user added successfully",
