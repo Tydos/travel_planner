@@ -3,7 +3,7 @@ import axios from "axios";
 
 function HomePage() {
   const [res, setRes] = useState([]);
-  const [cities, setCities] = useState([]);
+  const [activities, setActivities] = useState([]);
   const [refreshToggle, setRefreshToggle] = useState(0);
   const [deleteName, setDeleteName] = useState("");
 
@@ -16,12 +16,7 @@ function HomePage() {
     notes: ""
   });
 
-  // Fetch cities and users whenever refreshToggle changes
   useEffect(() => {
-    // axios.get("http://localhost:5000/planmytrip")
-    //   .then((response) => setCities(response.data))
-    //   .catch((error) => console.error("Error fetching cities:", error));
-
     axios.get("http://localhost:5000/getusers")
       .then((response) => setRes(response.data))
       .catch((error) => console.error("Error fetching users:", error));
@@ -47,7 +42,7 @@ function HomePage() {
   const handleSubmit = async () => {
     try {
       await axios.post("http://localhost:5000/adduser", formData);
-      setRefreshToggle(prev => prev + 1); // triggers refresh
+      setRefreshToggle(prev => prev + 1);
       setFormData({
         name: "", total_budget: "", monthly_saving_capacity: "",
         preference_weights: { nightlife: 0, adventure: 0, shopping: 0, food: 0, urban: 0 },
@@ -63,199 +58,185 @@ function HomePage() {
     try {
       await axios.delete(`http://localhost:5000/deluser/${deleteName}`);
       setDeleteName("");
-      setRefreshToggle(prev => prev + 1); // triggers refresh
+      setRefreshToggle(prev => prev + 1);
     } catch (err) {
       console.error("Error deleting user:", err);
     }
   };
 
- // Refresh triggered by "PLAN MY TRIP"
-const handlePlanTrip = async () => {
-  try {
-   // Fetch trip plan
-  const response = await axios.get("http://localhost:5000/planmytrip");
-
-  // Parse if the response is a string
-  const data = typeof response.data === "string" ? JSON.parse(response.data) : response.data;
-
-  // Update state (activities instead of cities for clarity)
-  setCities(data); // or setActivities(data) if you renamed the state
-  } catch (err) {
-    console.error("Error fetching cities:", err);
-  }
-};
-
-
-  // Inline Styles
-  const containerStyle = {
-    display: "flex",
-    justifyContent: "center",
-    fontFamily: "Arial, sans-serif",
-    backgroundColor: "#f4f4f9",
-    minHeight: "100vh",
-    padding: "40px 20px",
-    gap: "20px"
-  };
-
-  const columnStyle = {
-    display: "flex",
-    flexDirection: "column",
-    gap: "20px",
-    flex: 1,
-    maxWidth: "400px",
-    padding: "10px"
-  };
-
-  const sectionStyle = {
-    backgroundColor: "#fff",
-    padding: "25px",
-    borderRadius: "12px",
-    boxShadow: "0px 2px 10px rgba(0,0,0,0.12)",
-    margin: "5px"
-  };
-
-  const inputStyle = {
-    width: "100%",
-    padding: "10px",
-    margin: "5px 0",
-    borderRadius: "5px",
-    border: "1px solid #ccc"
-  };
-
-  const buttonStyle = {
-    backgroundColor: "#5c6bc0",
-    color: "white",
-    border: "none",
-    padding: "12px 18px",
-    borderRadius: "6px",
-    cursor: "pointer",
-    margin: "5px 0"
-  };
-
-  const listItemStyle = {
-    backgroundColor: "#fff",
-    padding: "10px 14px",
-    borderRadius: "5px",
-    border: "1px solid #ddd",
-    margin: "5px 0"
+  const handlePlanTrip = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/planmytrip");
+      const data = typeof response.data === "string" ? JSON.parse(response.data) : response.data;
+      setActivities(data);
+    } catch (err) {
+      console.error("Error fetching activities:", err);
+    }
   };
 
   return (
-    <div style={containerStyle}>
+    <div className="min-h-screen bg-gray-100 p-6 flex flex-col md:flex-row gap-6">
+      
       {/* Left Column - Forms */}
-      <div style={columnStyle}>
-        <div style={sectionStyle}>
-          <h2>Add User</h2>
-          <input name="name" placeholder="Name" value={formData.name} onChange={handleChange} style={inputStyle} />
-          <input name="total_budget" placeholder="Total Budget" type="number" value={formData.total_budget} onChange={handleChange} style={inputStyle} />
-          <input name="monthly_saving_capacity" placeholder="Monthly Saving Capacity" type="number" value={formData.monthly_saving_capacity} onChange={handleChange} style={inputStyle} />
+      <div className="flex flex-col gap-6 md:w-1/3">
+        
+        {/* Add User */}
+        <div className="bg-white p-6 rounded-xl shadow-md">
+          <h2 className="text-xl font-semibold mb-4">Add User</h2>
+          <input
+            className="w-full border border-gray-300 rounded-md p-2 mb-2"
+            name="name"
+            placeholder="Name"
+            value={formData.name}
+            onChange={handleChange}
+          />
+          <input
+            className="w-full border border-gray-300 rounded-md p-2 mb-2"
+            type="number"
+            name="total_budget"
+            placeholder="Total Budget"
+            value={formData.total_budget}
+            onChange={handleChange}
+          />
+          <input
+            className="w-full border border-gray-300 rounded-md p-2 mb-2"
+            type="number"
+            name="monthly_saving_capacity"
+            placeholder="Monthly Saving Capacity"
+            value={formData.monthly_saving_capacity}
+            onChange={handleChange}
+          />
 
-          <h3>Preference Weights (0–5)</h3>
-          {Object.keys(formData.preference_weights).map(key => (
-            <div key={key} style={{ margin: "5px 0" }}>
-              <label>{key}: </label>
-              <input name={key} type="number" min="0" max="5" value={formData.preference_weights[key]} onChange={handleChange} style={inputStyle} />
-            </div>
-          ))}
+          <h3 className="font-medium mt-4 mb-2">Preference Weights (0–5)</h3>
+          <div className="grid grid-cols-2 gap-2 mb-2">
+            {Object.keys(formData.preference_weights).map(key => (
+              <div key={key}>
+                <label className="text-sm">{key}</label>
+                <input
+                  className="w-full border border-gray-300 rounded-md p-1"
+                  type="number"
+                  min="0"
+                  max="5"
+                  name={key}
+                  value={formData.preference_weights[key]}
+                  onChange={handleChange}
+                />
+              </div>
+            ))}
+          </div>
 
-          <h3>Constraints</h3>
-          <input name="min_hotel_rating" type="number" placeholder="Min Hotel Rating" value={formData.constraints.min_hotel_rating} onChange={handleChange} style={inputStyle} />
-          <input name="max_flight_legs" type="number" placeholder="Max Flight Legs" value={formData.constraints.max_flight_legs} onChange={handleChange} style={inputStyle} />
-          <textarea name="notes" placeholder="Notes" value={formData.notes} onChange={handleChange} style={{ ...inputStyle, resize: "vertical" }} />
+          <h3 className="font-medium mt-2 mb-2">Constraints</h3>
+          <input
+            className="w-full border border-gray-300 rounded-md p-2 mb-2"
+            type="number"
+            name="min_hotel_rating"
+            placeholder="Min Hotel Rating"
+            value={formData.constraints.min_hotel_rating}
+            onChange={handleChange}
+          />
+          <input
+            className="w-full border border-gray-300 rounded-md p-2 mb-2"
+            type="number"
+            name="max_flight_legs"
+            placeholder="Max Flight Legs"
+            value={formData.constraints.max_flight_legs}
+            onChange={handleChange}
+          />
+          <textarea
+            className="w-full border border-gray-300 rounded-md p-2 mb-2 resize-y"
+            name="notes"
+            placeholder="Notes"
+            value={formData.notes}
+            onChange={handleChange}
+          />
 
-          <button onClick={handleSubmit} style={buttonStyle}>Add User</button>
+          <button
+            onClick={handleSubmit}
+            className="w-full bg-indigo-600 text-white py-2 rounded-md mt-2 hover:bg-indigo-700 transition"
+          >
+            Add User
+          </button>
         </div>
 
-        <div style={sectionStyle}>
-          <h2>Delete User</h2>
-          <input placeholder="Enter username to delete" value={deleteName} onChange={(e) => setDeleteName(e.target.value)} style={inputStyle} />
-          <button onClick={handleDelete} style={buttonStyle}>Delete</button>
+        {/* Delete User */}
+        <div className="bg-white p-6 rounded-xl shadow-md">
+          <h2 className="text-xl font-semibold mb-4">Delete User</h2>
+          <input
+            className="w-full border border-gray-300 rounded-md p-2 mb-2"
+            placeholder="Enter username to delete"
+            value={deleteName}
+            onChange={(e) => setDeleteName(e.target.value)}
+          />
+          <button
+            onClick={handleDelete}
+            className="w-full bg-red-500 text-white py-2 rounded-md hover:bg-red-600 transition"
+          >
+            Delete
+          </button>
         </div>
       </div>
 
       {/* Middle Column - Activities */}
-      <div style={columnStyle}>
-  <div style={sectionStyle}>
-    <button 
-      onClick={handlePlanTrip} 
-      style={{ ...buttonStyle, width: "100%", marginBottom: "15px" }}
-    >
-      PLAN MY TRIP
-    </button>
-    <h2>Activities in Madison</h2>
-    
-    {cities.length > 0 ? (
-      <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
-        {cities.map((activity, i) => (
-          <div
-            key={i}
-            style={{
-              backgroundColor: "#fff",
-              padding: "15px 20px",
-              borderRadius: "12px",
-              boxShadow: "0 4px 8px rgba(0,0,0,0.05)",
-              transition: "transform 0.2s",
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.02)")}
-            onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+      <div className="flex flex-col gap-6 md:w-1/3">
+        <div className="bg-white p-6 rounded-xl shadow-md">
+          <button
+            onClick={handlePlanTrip}
+            className="w-full bg-green-500 text-white py-2 rounded-md mb-4 hover:bg-green-600 transition"
           >
-            <h3 style={{ margin: "0 0 8px 0", color: "#222" }}>{activity.name}</h3>
-            <p style={{ margin: "0 0 5px 0", fontWeight: "bold" }}>Budget: ${activity.budget}</p>
-            <p style={{ margin: 0, color: "#555" }}>{activity.justification_score}</p>
-          </div>
-        ))}
-      </div>
-    ) : (
-      <p style={{ color: "#888", fontStyle: "italic" }}>No activities available</p>
-    )}
-  </div>
-</div>
-
-
-      {/* Right Column - Group Members */}
-    <div style={columnStyle}>
-  <div style={{ ...sectionStyle, padding: "20px", backgroundColor: "#fefefe" }}>
-    <h2 style={{ textAlign: "center", marginBottom: "15px", color: "#333" }}>Group Members</h2>
-    {res.length === 0 ? (
-      <p style={{ textAlign: "center", color: "#777" }}>No users available</p>
-    ) : (
-      <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "10px" }}>
-        {res.map((user, i) => (
-          <li key={i} style={{
-            ...listItemStyle,
-            padding: "12px",
-            borderRadius: "10px",
-            boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-            backgroundColor: "#ffffff"
-          }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <strong style={{ color: "#5c6bc0" }}>{user.name || "Unnamed"}</strong>
-              <span style={{ fontSize: "12px", color: "#555" }}>Budget: {user.total_budget || "N/A"}</span>
+            PLAN MY TRIP
+          </button>
+          <h2 className="text-xl font-semibold mb-4">Activities in Madison</h2>
+          {activities.length === 0 ? (
+            <p className="text-gray-500 italic">No activities available</p>
+          ) : (
+            <div className="flex flex-col gap-4">
+              {activities.map((activity, i) => (
+                <div
+                  key={i}
+                  className="bg-gray-50 p-4 rounded-xl shadow hover:shadow-md transition transform hover:scale-105"
+                >
+                  <h3 className="text-lg font-semibold text-gray-800">{activity.name}</h3>
+                  <p className="font-bold text-gray-700">Budget: ${activity.budget}</p>
+                  <p className="text-gray-600">{activity.justification_score}</p>
+                </div>
+              ))}
             </div>
-            
-            {user.preference_weights && (
-              <div style={{ marginTop: "8px", display: "flex", flexWrap: "wrap", gap: "5px" }}>
-                {Object.entries(user.preference_weights).map(([k, v]) => (
-                  <span key={k} style={{
-                    backgroundColor: "#e0e0ff",
-                    color: "#3f51b5",
-                    fontSize: "11px",
-                    padding: "2px 6px",
-                    borderRadius: "8px"
-                  }}>
-                    {k}: {v}
-                  </span>
-                ))}
-              </div>
-            )}
-          </li>
-        ))}
-      </ul>
-    )}
-  </div>
-</div>
+          )}
+        </div>
+      </div>
 
-
+      {/* Right Column - Users */}
+      <div className="flex flex-col gap-6 md:w-1/3">
+        <div className="bg-white p-6 rounded-xl shadow-md">
+          <h2 className="text-xl font-semibold mb-4 text-center">Group Members</h2>
+          {res.length === 0 ? (
+            <p className="text-gray-500 italic text-center">No users available</p>
+          ) : (
+            <ul className="flex flex-col gap-3">
+              {res.map((user, i) => (
+                <li
+                  key={i}
+                  className="bg-gray-50 p-3 rounded-xl shadow flex flex-col gap-2"
+                >
+                  <div className="flex justify-between items-center">
+                    <strong className="text-indigo-600">{user.name || "Unnamed"}</strong>
+                    <span className="text-gray-600 text-sm">Budget: {user.total_budget || "N/A"}</span>
+                  </div>
+                  {user.preference_weights && (
+                    <div className="flex flex-wrap gap-2">
+                      {Object.entries(user.preference_weights).map(([k, v]) => (
+                        <span key={k} className="bg-indigo-100 text-indigo-800 text-xs px-2 py-0.5 rounded-full">
+                          {k}: {v}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

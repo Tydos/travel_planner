@@ -113,11 +113,20 @@ import re
 def get_cities():
     try:
         prompt = f"""
-          Recommend exactly 3 distinct activities in Madison, Wisconsin for the users in {json_data}, maximizing fairness by minimizing the unhappiness of the least satisfied user,
-          keeping the total cost strictly below the lowest user's total_budget,
-          including at least one activity they haven’t tried, using Nightlife, Food, Urban, Nature, Culture, and Relaxation categories;
-          return strictly a JSON array of 3 objects with "name", "budget" (group cost), and "justification_score" (one sentence linking the activity to top preference categories) with no extra text.
-        """
+Recommend exactly 3 distinct activities in Madison, WI for the users in {json_data}, 
+ensuring the total group cost is strictly less than the lowest user's total_budget. 
+Ensure taking into account each user's preference categories and past activities,
+including at least one activity they haven’t tried.
+Use the categories Nightlife, Food, Urban, Nature, Culture, and Relaxation. 
+For each activity, include:
+
+- "name": the activity name
+- "budget": total group cost
+- "justification_score": one sentence explaining how it aligns with each user's top preference categories. Write the user names in the justification.
+
+
+Return strictly a JSON array of 3 objects, with no extra text, explanations, or formatting.
+"""
         response = client.models.generate_content(model="gemini-2.5-flash", contents=prompt)
         cleaned = re.sub(r"^```(?:json)?\s*|\s*```$", "", response.text.strip(), flags=re.MULTILINE)
         return jsonify(cleaned), 200
