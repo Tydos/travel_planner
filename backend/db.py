@@ -21,3 +21,4 @@ except Exception as e:
 db = client[dbname]
 users_collection = db.users 
 cities_collection = db.cities
+trips_collection = db.trips

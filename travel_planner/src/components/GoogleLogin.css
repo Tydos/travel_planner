@@ -1,0 +1,12 @@
+.google-login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+/* Override Google button styles if needed */
+.google-login-container iframe {
+  border-radius: 8px;
+}
+
