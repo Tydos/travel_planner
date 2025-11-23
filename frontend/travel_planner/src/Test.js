@@ -1,8 +1,9 @@
+//ONLY FOR TESTING
 
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-function HomePage() {
+function Test() {
   const [res, setRes] = useState([]);
   const [refreshToggle, setRefreshToggle] = useState(0);
 
@@ -159,4 +160,4 @@ function HomePage() {
   );
 }
 
-export default HomePage;
+export default Test;
