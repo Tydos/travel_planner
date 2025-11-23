@@ -1,0 +1,6 @@
+id,name,vibe_tags_nightlife,vibe_tags_adventure,vibe_tags_shopping,vibe_tags_food,vibe_tags_urban,avg_price_proxy,cost_index,typical_cost_level
+boise,Boise,0.18,0.04,0.01,0.66,0.12,27.554744525547445,0.5443276450350364,medium
+new_orleans,New Orleans,0.13,0.02,0.04,0.5,0.31,29.243697478991596,0.9999999997302043,high
+philadelphia,Philadelphia,0.1,0.04,0.06,0.58,0.21,25.537190082644628,0.0,low
+tampa,Tampa,0.13,0.04,0.04,0.63,0.16,26.753731343283583,0.3282176804799384,low
+tucson,Tucson,0.11,0.05,0.08,0.53,0.24,25.646551724137932,0.02950530776535966,low

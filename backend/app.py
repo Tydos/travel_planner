@@ -1,12 +1,13 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from db import dbname,users_collection
+from db import dbname,users_collection,cities_collection
 from bson.objectid import ObjectId
 from bson.json_util import dumps
 app = Flask(__name__)
 CORS(app)
-print(f"Connected to DB: {dbname}")
-print(f"Available collections: {users_collection.name}")
+
+print(f"\nConnected to DB: {dbname}")
+print(f"Available collections: {users_collection.name},{cities_collection.name}\n")
 
 @app.route("/")
 def home():
@@ -43,10 +44,79 @@ def get_user():
     except:
         pass
       
-
 @app.route("/adduser", methods=["POST"])
 def add_user():
-    pass
+        new_user = {
+        "id": "alice",
+        "name": "Alice",
+        "total_budget": 800,
+        "monthly_saving_capacity": 150,
+        "preference_weights": {
+            "nightlife": 4,
+            "adventure": 2,
+            "shopping": 1,
+            "food": 5,
+            "urban": 4
+        },
+        "constraints": {
+            "min_hotel_rating": 3,
+            "max_flight_legs": 2
+        },
+        "notes": "Budget foodie, hates early mornings and hiking, loves walkable neighborhoods and speakeasies."
+    }
+        
+        # 2. Insert the hardcoded data
+        result = users_collection.insert_one(new_user)
+        
+        # 3. Success Response
+        return jsonify({
+            "message": "Hardcoded user added successfully",
+            "id": str(result.inserted_id) 
+        }), 201
+
+@app.route("/deluser/<string:user_name>", methods=["DELETE"])
+def del_user(user_name):
+    # 1. Define the query filter using the 'name' field
+    user_name = user_name.strip()
+
+    filter_query = {"name": user_name}
+
+    # 2. Execute the delete operation
+    delete_result = users_collection.delete_one(filter_query)
+
+    # 3. Handle the result using the correct attribute
+    if delete_result.deleted_count == 1:
+        return jsonify({
+            "message": f"User with name '{user_name}' deleted successfully"
+        }), 200
+    else:
+        return jsonify({
+            "message": f"User with name '{user_name}' not found"
+        }), 404
+
+
+@app.route("/addcity",methods=["POST"])
+def add_city():
+        new_city = {'id': 'boise',
+        'name': 'Boise',
+        'vibe_tags': {'nightlife': 0.18,
+        'adventure': 0.04,
+        'shopping': 0.01,
+        'food': 0.66,
+        'urban': 0.12},
+        'avg_price_proxy': 27.554744525547445,
+        'cost_index': 0.5443276450350364,
+        'typical_cost_level': 'medium'
+        }
+            
+        # 2. Insert the hardcoded data
+        result = cities_collection.insert_one(new_city)
+        
+        # 3. Success Response
+        return jsonify({
+            "message": "City added successfully",
+            "id": str(result.inserted_id) 
+        }), 201
 
 if __name__ == "__main__":
     app.run(port=5000, debug=True)

@@ -20,4 +20,4 @@ except Exception as e:
 # Access the main collection for travel plans
 db = client[dbname]
 users_collection = db.users 
-
+cities_collection = db.cities
