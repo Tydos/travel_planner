@@ -8,7 +8,7 @@ key = os.getenv("GEMINI_API_KEY")
 # The client gets the API key from the environment variable `GEMINI_API_KEY`.
 client = genai.Client()
 prompt = (
-        "Give me 3 random city names from around the world. "
+        "Give me 3 random stuff to do in Madison, WI."
         "Return only the city names separated by commas, no extra text."
     )
 response = client.models.generate_content(
