@@ -1,10 +1,11 @@
-
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
 function HomePage() {
   const [res, setRes] = useState([]);
+  const [cities, setCities] = useState([]);
   const [refreshToggle, setRefreshToggle] = useState(0);
+  const [deleteName, setDeleteName] = useState("");
 
   // Form state
   const [formData, setFormData] = useState({
@@ -25,13 +26,20 @@ function HomePage() {
     notes: ""
   });
 
+  // Fetch usernames
   useEffect(() => {
-    axios.get("http://localhost:5000/getuser")
+    axios.get("http://localhost:5000/getusername")
       .then((response) => setRes(response.data))
       .catch((error) => console.error("Error fetching items:", error));
   }, [refreshToggle]);
 
-  // Handle input changes
+  // Fetch possible cities
+  useEffect(() => {
+    axios.get("http://localhost:5000/getcities")
+      .then((response) => setCities(response.data))
+      .catch((error) => console.error("Error fetching cities:", error));
+  }, [refreshToggle]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -60,6 +68,7 @@ function HomePage() {
     try {
       await axios.post("http://localhost:5000/adduser", formData);
       setRefreshToggle(prev => prev + 1);
+
       setFormData({
         name: "",
         total_budget: "",
@@ -82,18 +91,32 @@ function HomePage() {
     }
   };
 
+  const handleDelete = async () => {
+    if (!deleteName.trim()) return;
+
+    try {
+      await axios.delete(`http://localhost:5000/deluser/${deleteName}`);
+      setDeleteName("");
+      setRefreshToggle(prev => prev + 1);
+    } catch (err) {
+      console.error("Error deleting user:", err);
+    }
+  };
+
   return (
     <div>
       <h1>HomePage</h1>
 
       <div>
         <h2>Add User</h2>
+
         <input
           name="name"
           placeholder="Name"
           value={formData.name}
           onChange={handleChange}
         />
+
         <input
           name="total_budget"
           placeholder="Total Budget"
@@ -101,6 +124,7 @@ function HomePage() {
           value={formData.total_budget}
           onChange={handleChange}
         />
+
         <input
           name="monthly_saving_capacity"
           placeholder="Monthly Saving Capacity"
@@ -109,7 +133,7 @@ function HomePage() {
           onChange={handleChange}
         />
 
-        <h3>Preference Weights (0-5)</h3>
+        <h3>Preference Weights (0–5)</h3>
         {Object.keys(formData.preference_weights).map(key => (
           <div key={key}>
             <label>{key}: </label>
@@ -125,6 +149,7 @@ function HomePage() {
         ))}
 
         <h3>Constraints</h3>
+
         <input
           name="min_hotel_rating"
           type="number"
@@ -132,6 +157,7 @@ function HomePage() {
           value={formData.constraints.min_hotel_rating}
           onChange={handleChange}
         />
+
         <input
           name="max_flight_legs"
           type="number"
@@ -150,6 +176,25 @@ function HomePage() {
         <button onClick={handleSubmit}>Add User</button>
       </div>
 
+      <h2>Delete User</h2>
+      <input
+        placeholder="Enter username to delete"
+        value={deleteName}
+        onChange={(e) => setDeleteName(e.target.value)}
+      />
+      <button onClick={handleDelete}>Delete</button>
+
+  <h2>You should visit Cities</h2>
+<ul>
+  {cities.length > 0 ? (
+    cities.map((city, index) => <li key={index}>{city}</li>)
+  ) : (
+    <li>No cities available</li>
+  )}
+</ul>
+
+
+      <h2>Users</h2>
       <ul>
         {res.map((name, index) => (
           <li key={index}>{name}</li>
